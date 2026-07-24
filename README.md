@@ -1,1 +1,134 @@
 # Flow-fetch-1.0
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-site-verification" content="ZQV5T4NVI5XkFKaf7Le7fua-1Kj6Ei5p8CjSADJO4DQ" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Fetch - Video Downloader</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 24px; }
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            background: #38bdf8;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 18px;
+            display: none;
+        }
+        .dl-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #22c55e;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        #status { margin-top: 14px; font-size: 0.9rem; color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Flow Fetch</h2>
+        <p>Paste a video link below</p>
+           <input type="url" id="videoUrl" placeholder="https://..." required>
+        <button id="mainBtn" onclick="fetchVideo()">Get Download Link</button>
+  <div id="status"></div>
+        <div id="result">
+            <a id="downloadLink" class="dl-btn" href="#" target="_blank" rel="noopener noreferrer">
+                Download MP4 Video
+            </a>
+        </div>
+    </div>
+   <script>
+        async function fetchVideo() {
+            const urlInput = document.getElementById('videoUrl');
+            const url = urlInput.value.trim();
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+            const downloadLink = document.getElementById('downloadLink');
+            const mainBtn = document.getElementById('mainBtn');
+    if (!url) {
+                alert("Please paste a valid video link first!");
+                return;
+            }
+    status.innerText = "Processing video...";
+            result.style.display = "none";
+            mainBtn.disabled = true;
+    try {
+                const response = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+     if (data && data.code === 0 && data.data) {
+                    status.innerText = "Success! Tap below to download:";
+                  
+  // Safely check for video stream link or fallback link
+                    const videoSrc = data.data.play || data.data.wm;
+                                if (videoSrc) {
+                        downloadLink.href = videoSrc;
+                        result.style.display = "block";
+                    } else {
+                        status.innerText = "Error: Video URL could not be extracted.";
+                    }
+                } else {
+                    status.innerText = data.msg || "Unable to process this link. Please make sure it's a valid public TikTok video.";
+                }
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Error connecting to the extraction service. Please try again.";
+            } finally {
+                mainBtn.disabled = false;
+            }
+        }
+    </script>
+
+</body>
+</html>
